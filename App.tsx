@@ -1,117 +1,149 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, {useState} from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
   View,
+  Button,
+  TextInput,
+  FlatList,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const App = () => {
+  // State to manage the counter value
+  const [count, setCount] = useState(0);
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+  // States to manage input values for increment and decrement
+  const [incrementValue, setIncrementValue] = useState('');
+  const [decrementValue, setDecrementValue] = useState('');
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+  // State to manage history of changes
+  const [history, setHistory] = useState([]);
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  // Function to handle increment by a specific number
+  const increment = () => {
+    const value = parseInt(incrementValue);
+    if (!isNaN(value)) {
+      setCount(count + value);
+      updateHistory(`Incremented by ${value}`);
+    }
+  };
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  // Function to handle decrement by a specific number
+  const decrement = () => {
+    const value = parseInt(decrementValue);
+    if (!isNaN(value)) {
+      setCount(count - value);
+      updateHistory(`Decremented by ${value}`);
+    }
+  };
+
+  // Function to reset the counter
+  const resetCounter = () => {
+    setCount(0);
+    updateHistory(`Counter reset`);
+  };
+
+  // Function to reset input fields
+  const resetFields = () => {
+    setIncrementValue('');
+    setDecrementValue('');
+    updateHistory(`Fields reset`);
+  };
+
+  // Function to add action to history
+  const updateHistory = action => {
+    setHistory(prevHistory => [
+      ...prevHistory,
+      {key: `${prevHistory.length + 1}`, action},
+    ]);
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
+    <View style={styles.container}>
+      <Text style={styles.title}>Enhanced Counter App</Text>
 
+      {/* Display the current counter value */}
+      <Text style={styles.counter}>Count: {count}</Text>
+
+      {/* Increment section */}
+      <TextInput
+        style={styles.input}
+        keyboardType="numeric"
+        placeholder="Enter number to increment"
+        value={incrementValue}
+        onChangeText={value => setIncrementValue(value)}
+      />
+      <Button title="Increment by number" onPress={increment} />
+
+      {/* Decrement section */}
+      <TextInput
+        style={styles.input}
+        keyboardType="numeric"
+        placeholder="Enter number to decrement"
+        value={decrementValue}
+        onChangeText={value => setDecrementValue(value)}
+      />
+      <Button title="Decrement by number" onPress={decrement} />
+
+      {/* Reset counter and reset fields buttons */}
+      <View style={styles.buttonContainer}>
+        <Button title="Reset Counter" onPress={resetCounter} />
+        <Button title="Reset Fields" onPress={resetFields} />
+      </View>
+
+      {/* History section */}
+      <Text style={styles.historyTitle}>History:</Text>
+      <FlatList
+        data={history}
+        renderItem={({item}) => (
+          <Text style={styles.historyItem}>{item.action}</Text>
+        )}
+      />
+    </View>
+  );
+};
+
+// Define styles
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  counter: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
-  highlight: {
-    fontWeight: '700',
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    marginVertical: 10,
+    padding: 10,
+    width: '80%',
+    borderRadius: 5,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '80%',
+    marginVertical: 20,
+  },
+  historyTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 20,
+  },
+  historyItem: {
+    fontSize: 16,
+    marginTop: 5,
   },
 });
 
